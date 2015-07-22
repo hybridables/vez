@@ -5,12 +5,15 @@
  * Released under the MIT license.
  */
 
+/* jshint asi:true */
+
 'use strict'
 
 var util = require('util')
 var Benz = require('benz')
 var extend = require('extend-shallow')
 var isObject = require('is-extendable')
+var manageArguments = require('manage-arguments')
 var handleArguments = require('handle-arguments')
 
 module.exports = Vez
@@ -21,32 +24,24 @@ function Vez (options) {
   }
 
   Benz.call(this, options)
-  this.stack = []
+  this._fns = []
 }
 
 util.inherits(Vez, Benz)
 
-Vez.prototype.use = function (fn) {
-  this.stack.push(fn)
+Vez.prototype.use = function use () {
+  this._fns = compose(this._fns, manageArguments(arguments))
   return this
 }
 
 Vez.prototype.series = function series () {
-  var argz = handleArguments(arguments)
-  setContext(this, argz.args)
-
-  var series = this.compose('series')
-  var done = series(this.stack, this.option('extensions'))
-  return done(argz.callback)
+  factory('series', this, arguments)
+  return this
 }
 
 Vez.prototype.parallel = function parallel () {
-  var argz = handleArguments(arguments)
-  setContext(this, argz.args)
-
-  var parallel = this.compose('parallel')
-  var done = parallel(this.stack, this.option('extensions'))
-  return done(argz.callback)
+  factory('parallel', this, arguments)
+  return this
 }
 
 Vez.prototype.run = function run () {
@@ -55,18 +50,36 @@ Vez.prototype.run = function run () {
 
   if (this.enabled('parallel')) {
     var parallel = this.compose('parallel')
-    return parallel(this.stack, this.option('extensions'))(argz.callback)
+    parallel(this._fns, this.option('extensions'))(argz.callback)
+    return
   }
   var series = this.compose('series')
-  return series(this.stack, this.option('extensions'))(argz.callback)
+  series(this._fns, this.option('extensions'))(argz.callback)
 }
 
-/**
- * utils
- */
+function factory (method, self, argsObject) {
+  var argz = handleArguments(argsObject)
+  setContext(this, argz.args)
+
+  var flow = self.compose(method)
+  var done = flow(self._fns, self.option('extensions'))
+  done(argz.callback)
+}
 
 function setContext (self, args) {
   var contexts = args.filter(isObject)
   var ctx = extend.apply(null, [self.option('context')].concat(contexts))
   self.option('context', ctx)
+}
+
+function compose (fns, middlewares) {
+  var len = middlewares.length
+  var i = 0
+
+  while (i < len) {
+    var middleware = middlewares[i++]
+    fns.push(middleware)
+  }
+
+  return fns
 }
