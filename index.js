@@ -11,7 +11,7 @@
 
 var util = require('util')
 var Benz = require('benz')
-var extend = require('extend-shallow')
+var merge = require('merge-deep')
 var isObject = require('is-extendable')
 var manageArguments = require('manage-arguments')
 var handleArguments = require('handle-arguments')
@@ -69,7 +69,7 @@ function factory (method, self, argsObject) {
 
 function setContext (self, args) {
   var contexts = args.filter(isObject)
-  var ctx = extend.apply(null, [self.option('context')].concat(contexts))
+  var ctx = merge.apply(null, [{}, self.option('context')].concat(contexts))
   self.option('context', ctx)
 }
 

@@ -11,11 +11,11 @@
   },
   "dependencies": {
     "benz": "*",
-    "extend-shallow": "~2.0.0",
     "handle-arguments": "~3.0.2",
     "is-extendable": "~0.1.1",
     "is-kindof": "^2.1.1",
-    "manage-arguments": "~1.0.0"
+    "manage-arguments": "~1.0.0",
+    "merge-deep": "^2.0.0"
   },
   "devDependencies": {
     "assertit": "^0.1.0",
