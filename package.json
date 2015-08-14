@@ -1,6 +1,6 @@
 {
   "name": "vez",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Middleware composition at new level. Ultimate alternative to `ware`, `plugins`, `koa-compose` and `composition` packages. Allows you to use callbacks, promises, generators and async/await functions as middlewares.",
   "repository": "tunnckoCore/vez",
   "author": "Charlike Mike Reagent <@tunnckoCore> (http://www.tunnckocore.tk)",
