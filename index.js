@@ -15,6 +15,7 @@ var extend = require('extend-shallow')
 var isObject = require('is-extendable')
 var manageArguments = require('manage-arguments')
 var handleArguments = require('handle-arguments')
+var is = require('is-kindof')
 
 module.exports = Vez
 
@@ -77,9 +78,14 @@ function compose (fns, middlewares) {
   var i = 0
 
   while (i < len) {
-    var middleware = middlewares[i++]
-    fns.push(middleware)
+    var mw = middlewares[i++]
+    if (!allowedMiddleware(mw)) continue
+    fns.push(mw)
   }
 
   return fns
+}
+
+function allowedMiddleware (mw) {
+  return is(mw, 'promise') || is(mw, 'generatorfunction') || is(mw, 'function')
 }
